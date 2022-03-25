@@ -7,6 +7,12 @@ import PostItem from './PostItem'
   //получаем новый массив, где каждый эл-т поста преобразовываем в реакт эл-т
   //и передаём в пост-айтем пропсом передаём туда объект
 function PostList({posts, title, remove}) {
+    if(!posts.length){
+      return(
+        <h1 style={{textAlign:'center'}}>Список пуст</h1>
+      )
+    }
+
   return (
       <div>
     <h1 style={{textAlign:'center'}}>
