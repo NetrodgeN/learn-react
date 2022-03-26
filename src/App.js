@@ -1,4 +1,5 @@
-import React, {useMemo, useState} from 'react'
+import axios from 'axios';
+import React, {useEffect, useMemo, useState} from 'react'
 import PostFilter from './components/PostFilter';
 import PostForm from './components/PostForm';
 import PostList from './components/PostList';
@@ -16,10 +17,21 @@ function App() {
   const [modal,setModal] = useState(false)
   const sortedAndSeacrchedPosts = usePosts(posts, filter.sort, filter.query)
 
+  useEffect(()=>{
+    console.log('use eff')
+    fetchPosts();
+  },[])
+
+
   const createPost = (newPost) =>{
     setPosts([...posts, newPost])
     setModal(false)
   }
+  async function fetchPosts(){
+    const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
+    setPosts(response.data)
+  }
+
 // получаем пост из дочернего эл-та
   const removePost = (post) =>{
     //если id поста равен айди которому мы передали постом, мы его удаляем
@@ -28,6 +40,7 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={fetchPosts} >GET POST </button>
       <MyButton style={{marginTop:30}} onClick={()=>setModal(true)}>
         Create post
       </MyButton>
