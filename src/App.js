@@ -6,19 +6,23 @@ import PostList from './components/PostList';
 import MyButton from './components/UI/button/MyButton';
 import MyModal from './components/UI/MyModal/MyModal';
 import { usePosts } from './hooks/usePosts';
-
+import PostService from './API/PostService';
 import './styles/App.css'
-
+import Loader from './components/UI/Loader/Loader';
+import { useFetching } from './hooks/useFetching';
 
 function App() {
   //состояние массива постов
-  const [posts, setPosts] = useState([])
-  const [filter, setFilter] = useState({sort:'', query:''})
-  const [modal,setModal] = useState(false)
-  const sortedAndSeacrchedPosts = usePosts(posts, filter.sort, filter.query)
+  const [posts, setPosts] = useState([]);
+  const [filter, setFilter] = useState({sort:'', query:''});
+  const [modal,setModal] = useState(false);
+  const sortedAndSeacrchedPosts = usePosts(posts, filter.sort, filter.query);
+  const [fetchPosts, isPostsLoading, postError] = useFetching( async()=>{
+    const posts = await PostService.getAll();
+    setPosts(posts);
+  })
 
   useEffect(()=>{
-    console.log('use eff')
     fetchPosts();
   },[])
 
@@ -27,11 +31,6 @@ function App() {
     setPosts([...posts, newPost])
     setModal(false)
   }
-  async function fetchPosts(){
-    const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
-    setPosts(response.data)
-  }
-
 // получаем пост из дочернего эл-та
   const removePost = (post) =>{
     //если id поста равен айди которому мы передали постом, мы его удаляем
@@ -53,8 +52,14 @@ function App() {
       filter={filter} 
       setFilter={setFilter}
       />
-        <PostList  remove={removePost} posts={sortedAndSeacrchedPosts} title="Список постов :)"/>
-      </div>
+      {postError&&
+        <h1>Произошла ошибка</h1>
+      }
+      {isPostsLoading
+       ? <div style={{display: 'flex', justifyContent:'center', marginTop:50}}><Loader/></div>
+       : <PostList  remove={removePost} posts={sortedAndSeacrchedPosts} title="Список постов :)"/>
+      }
+    </div>
   );
 }
 
